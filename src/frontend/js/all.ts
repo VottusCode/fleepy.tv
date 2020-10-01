@@ -1,5 +1,16 @@
-var avatars = [
-  // Creates a table with the list of avatars from Ran and Chen
+import initChenMoving from "./moving"
+import $ from "jquery"
+
+import "../css/main.scss"
+
+/**
+ * Base variables
+ */
+
+/**
+ * Array with the list of avatars from Ran and Chen
+ */
+const avatars = [
   "assets/images/avatar/ran/avatar1.png",
   "assets/images/avatar/ran/avatar2.png",
   "assets/images/avatar/ran/avatar3.png",
@@ -21,32 +32,46 @@ var avatars = [
   "assets/images/avatar/chen/avatar9.png",
   "assets/images/avatar/chen/avatar10.png",
 ]
-// function chgimg(avatars){return avatars[Math.floor(Math.random()*avatars.length)];} // abandoned function to change the avatar image
-function chentip() {
-  alert(
-    "If you hold down shift and click the avatar, chen will run forever until you refresh the page c:"
-  )
-}
+
+/**
+ * How many times has been the name clicked
+ */
+let nameClicked = 0
+
+/**
+ * If Chen is currently running
+ */
 var running = false
-var repeatrun = false
 
-function chenhonk() {
-  // please ignore this fuckfest of a mess
+/**
+ * If the running is infinite
+ */
+var repeatRun = false
 
-  if (running == true) return
-  // transition, left/right, transform, rotate
-  if (repeatrun) {
-    setInterval(function () {
-      dothething()
-    }, 1050)
-  } else {
-    dothething()
+/**
+ * Function that enables Chen Controlling
+ * on three executions. Executed by clicking the name.
+ */
+const honkHonk = () => {
+  if (nameClicked !== 3) return nameClicked++
+  else {
+    if (repeatRun) return
+
+    nameClicked = 99
+    alert("honk honk")
+    initChenMoving()
   }
+}
 
-  function dothething() {
-    // this is the shittiest way of doing this. please... never attempt this yourself. you will go through hours of pain like I did.
-    //console.log($(".honk").attr("style"));
+/**
+ * Chen honk
+ * TODO: Cleanup
+ */
+const chenHonk = () => {
+  if (nameClicked === 99) return
+  if (running == true) return
 
+  const honk = () => {
     running = true
     if (
       $(".honk").attr("style") ==
@@ -116,52 +141,46 @@ function chenhonk() {
       running = false
     }, 1000)
   }
+
+  if (repeatRun) setInterval(honk, 1050)
+  else honk()
 }
-$(function () {
-  changeavatarimage() // Pick a random avatar and change it before the page fades in, so the avatar isint the same every time you load the page
-  $("body").fadeIn(1000)
-  var $avi = $(".avatar")
-  $avi.click(function () {
-    if (window.event.shiftKey) {
-      repeatrun = true
-    }
-    setTimeout(chenhonk(), 10)
-    changeavatarimage()
-    /* // no need for this since chenhonk() c:
-            // plus it was resource intensive anyway
-            let $rip = $('<div class="ripple"/>')
-            $avi.prepend($rip);
-            $rip.ready(function() {
-                $rip.addClass("rippleout");
-                setTimeout(function() {
-                    $rip.remove();
-                }, 5000)
-            })
-            */
-    //changeavatarimage()
-    // $rip.animate({
-    // 	width: "calc( max(142vw, 142vh) + 250px );",
-    // 	height: "calc( max(142vw, 142vh) + 250px );"
-    // }, 5000)
-    // setTimeout(function(){
-    // 	$(".ripple").removeClass("rippleout");
-    // }, 5000);
-  })
-  let menuOpen = false
-  const mobileMenuButton = $(".mobile-menu-button")
-  const mobileMenuContainer = $(".mobile-menu-container")
-  const mobileMenuLinks = $(".mobile-menu-links")
 
-  mobileMenuButton.click(function () {
-    menuOpen = !menuOpen
-
-    mobileMenuLinks.slideToggle(200)
-  })
-})
-
-function changeavatarimage() {
+const changeAvatarImage = () => {
   $(".avatarnormal").attr(
     "src",
     avatars[Math.floor(Math.random() * avatars.length)]
   )
 }
+
+/**
+ * Page load
+ */
+$(() => {
+  // Hide the body as the first thing on load so it can actually fade in
+  $("body").hide()
+
+  // Pick a random avatar and change it before the page fades in
+  changeAvatarImage()
+
+  // Fade-in the page content
+  $("body").fadeIn(1000)
+
+  $(".avatar").on("click", (e) => {
+    // If the name wasn't clicked three times already
+    if (!(nameClicked >= 3)) {
+      if (e.shiftKey) repeatRun = true // enable infinite running
+      setTimeout(chenHonk, 10)
+    }
+
+    changeAvatarImage()
+  })
+
+  let menuOpen = false
+
+  $(".mobile-menu-button").on("click", function () {
+    menuOpen = !menuOpen
+
+    $(".mobile-menu-links").slideToggle(200)
+  })
+})

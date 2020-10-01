@@ -1,4 +1,6 @@
-window.initChenMoving = () => {
+import { debounce } from "lodash"
+
+export default () => {
   /**
    * Settings
    * -------------------
@@ -25,9 +27,9 @@ window.initChenMoving = () => {
    * honk honk
    */
 
-  const honk = identifier.startsWith(".")
+  const honk = (identifier.startsWith(".")
     ? document.getElementsByClassName(identifier.substring(1))[0]
-    : document.getElementById(identifier.substring(1))
+    : document.getElementById(identifier.substring(1))) as HTMLImageElement
   if (!honk) return // if Chen isn't present life doesn't make sense
 
   /**
@@ -42,7 +44,7 @@ window.initChenMoving = () => {
   let currentThing = 0
 
   // current side (either top or bottom - bottom is default)
-  let currentSide = "bottom"
+  let currentSide: "bottom" | "top" = "bottom"
 
   // @deprecated remove
   let currentTop = Number.parseInt(honk.style.top)
@@ -179,8 +181,9 @@ window.initChenMoving = () => {
    * the right or left key and we don't want to continue the animation
    * once the key has been lifted
    */
-  $("body").keyup(
-    _.debounce(
+  $("body").on(
+    "keyup",
+    debounce(
       (e) => {
         // Setting the keyDown to false (previously set to true by the keydown event)
         keyDown = false
@@ -196,8 +199,9 @@ window.initChenMoving = () => {
    *
    * The main keydown event
    */
-  $("body").keydown(
-    _.debounce(
+  $("body").on(
+    "keydown",
+    debounce(
       (e) => {
         // Setting the keyDown to true (keyup event will set this to false to cancel out any running keydown things)
         keyDown = true
@@ -251,7 +255,7 @@ window.initChenMoving = () => {
             // Do not handle if Chen is already
             // going down or up, or if the side is bottom
             if (goingDown || goingUp) return
-            if (!currentSide === "bottom") return
+            if (currentSide !== "bottom") return
 
             // Lock up/down actions
             goingUp = true
@@ -262,8 +266,8 @@ window.initChenMoving = () => {
             // Set the value to both margins
             // to make sure the animation is on both sides
             // The number is inverted as Chen's leaving
-            honk.style.marginTop = h - h * 2
-            honk.style.marginBottom = h - h * 2
+            honk.style.marginTop = `${h - h * 2}px`
+            honk.style.marginBottom = `${h - h * 2}px`
 
             setTimeout(() => {
               // Setting the side to bottom
@@ -271,8 +275,8 @@ window.initChenMoving = () => {
 
               // Setting the margins to 0,
               // to animate Chen showing back again on the bottom side
-              honk.style.marginTop = 0
-              honk.style.marginBottom = 0
+              honk.style.marginTop = "0"
+              honk.style.marginBottom = "0"
 
               // Unlock up/down actions after Chen shows up
               setTimeout(() => (goingUp = false), 600) // it takes 0.6 seconds (=600 ms) to animate
@@ -284,14 +288,14 @@ window.initChenMoving = () => {
             // Do not handle if Chen is already
             // going down or up, or if the side is top
             if (goingDown || goingUp) return
-            if (!currentSide === "top") return
+            if (currentSide !== "top") return
 
             // Lock up/down actions
             goingDown = true
 
             const height = getActualHeight() + 5
-            honk.style.marginTop = height - height * 2
-            honk.style.marginBottom = height - height * 2
+            honk.style.marginTop = `${height - height * 2}px`
+            honk.style.marginBottom = `${height - height * 2}px`
 
             setTimeout(() => {
               // Setting the side to top
@@ -299,8 +303,8 @@ window.initChenMoving = () => {
 
               // Setting the margins to 0,
               // to animate Chen showing back again on the bottom side
-              honk.style.marginBottom = 0
-              honk.style.marginTop = 0
+              honk.style.marginBottom = "0"
+              honk.style.marginTop = "0"
 
               // Unlock up/down actions after Chen shows up
               setTimeout(() => (goingDown = false), 600) // it takes 0.6 seconds (=600 ms) to animate

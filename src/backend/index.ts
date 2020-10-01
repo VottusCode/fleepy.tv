@@ -13,6 +13,20 @@ const app = fastify({
   trustProxy: true,
 })
 
+const publicPath = path.join(__dirname, "../../", "public")
+
+// Check if the public folder is present
+if (!fs.existsSync(publicPath)) {
+  console.error("Error: The public folder was not found. Exiting")
+  process.exit(1)
+}
+
+// Check if flep didn't forget to build stuff
+if (!fs.existsSync(path.join(publicPath, "build")))
+  console.warn(
+    "Warning: The build folder was not found, make sure you've run 'npm run build' before to build all important JS and CSS"
+  )
+
 app.addHook("onRequest", (req, _, next) => {
   console.log(`IP: ${req.ip} Requested ${req.url}`) // just do some logging
   next()
@@ -23,7 +37,7 @@ app.addHook("onRequest", (req, _, next) => {
 // })
 
 app.register(fastifyStatic, {
-  root: path.join(__dirname, "public"),
+  root: publicPath,
   wildcard: "/**",
 })
 
